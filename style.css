@@ -1,0 +1,179 @@
+:root {
+  --color-1: #00f0ff;
+  --color-2: #ff00aa;
+  --color-3: #0080ff;
+  --color-4: #ffaa00;
+  --color-Q: #00f0ff;
+  --color-W: #ffaa00;
+  --color-E: #ff00aa;
+  --color-R: #00f0ff;
+  --color-A: #ff00aa;
+  --color-S: #00f0ff;
+  --color-D: #ffaa00;
+  --color-F: #0080ff;
+  --color-Z: #ff00aa;
+  --color-X: #0080ff;
+  --color-C: #ff00aa;
+  --color-V: #ffaa00;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Orbitron', system-ui, sans-serif;
+  background: #0a0a0f;
+  color: #ffffff;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  gap: 2rem;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.title {
+  font-family: 'Orbitron', system-ui, sans-serif;
+  font-weight: 900;
+  font-size: clamp(2rem, 8vmin, 5rem);
+  letter-spacing: 0.15em;
+  text-align: center;
+  color: #ffffff;
+  text-shadow:
+    0 0 10px #00f0ff,
+    0 0 20px #00f0ff,
+    0 0 40px #00f0ff,
+    0 0 80px #00d0ff,
+    0 0 160px #00b0ff;
+  animation: flicker 4s infinite;
+}
+
+@keyframes flicker {
+  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+    text-shadow:
+      0 0 10px #00f0ff,
+      0 0 20px #00f0ff,
+      0 0 40px #00f0ff,
+      0 0 80px #00d0ff,
+      0 0 160px #00b0ff;
+    opacity: 1;
+  }
+  20%, 24%, 55% {
+    text-shadow:
+      0 0 5px #00f0ff,
+      0 0 10px #00f0ff,
+      0 0 20px #00f0ff;
+    opacity: 0.85;
+  }
+}
+
+.chassis {
+  background: #000000;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 0 2rem rgba(0, 0, 0, 0.8), inset 0 0 1.5rem rgba(255, 255, 255, 0.03);
+  border: 1px solid #1a1a1f;
+}
+
+.pad-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.9rem;
+  width: min(85vmin, 560px);
+  aspect-ratio: 1;
+}
+
+.pad {
+  background: #15151a;
+  border: 2px solid var(--pad-color, #333);
+  border-radius: 0.6rem;
+  font-family: 'Orbitron', system-ui, sans-serif;
+  font-size: clamp(1.4rem, 4vmin, 2.4rem);
+  font-weight: 900;
+  color: #ffffff;
+  cursor: pointer;
+  transition: transform 80ms ease-out, box-shadow 250ms ease, background 250ms ease;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow:
+    0 0 0.4rem var(--pad-color),
+    inset 0 0 1.8rem rgba(0, 0, 0, 0.7);
+}
+
+.pad:focus-visible {
+  outline: 2px solid var(--pad-color);
+  outline-offset: 2px;
+}
+
+.pad.pad-pressed {
+  background: var(--pad-color);
+  color: #000000;
+  border-color: var(--pad-color);
+  box-shadow:
+    0 0 1rem var(--pad-color),
+    0 0 2rem var(--pad-color),
+    0 0 4rem var(--pad-color),
+    inset 0 0 1rem rgba(255, 255, 255, 0.3);
+  transform: scale(0.98);
+  transition: transform 30ms ease-out, box-shadow 30ms ease-out, background 30ms ease-out;
+}
+
+.legend {
+  text-align: center;
+  max-width: 600px;
+}
+
+.legend-hint {
+  font-size: 0.9rem;
+  color: #8a8a8f;
+  margin-bottom: 1rem;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+}
+
+.keymap {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+  max-width: 280px;
+  margin: 0 auto;
+}
+
+.keycap {
+  background: linear-gradient(180deg, #2a2a3f 0%, #1a1a2f 100%);
+  border: 1px solid #3a3a4f;
+  border-radius: 0.25rem;
+  padding: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #9a9aaf;
+  text-align: center;
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  user-select: none;
+}
+
+.pad[data-key="1"] { --pad-color: var(--color-1); }
+.pad[data-key="2"] { --pad-color: var(--color-2); }
+.pad[data-key="3"] { --pad-color: var(--color-3); }
+.pad[data-key="4"] { --pad-color: var(--color-4); }
+.pad[data-key="Q"] { --pad-color: var(--color-Q); }
+.pad[data-key="W"] { --pad-color: var(--color-W); }
+.pad[data-key="E"] { --pad-color: var(--color-E); }
+.pad[data-key="R"] { --pad-color: var(--color-R); }
+.pad[data-key="A"] { --pad-color: var(--color-A); }
+.pad[data-key="S"] { --pad-color: var(--color-S); }
+.pad[data-key="D"] { --pad-color: var(--color-D); }
+.pad[data-key="F"] { --pad-color: var(--color-F); }
+.pad[data-key="Z"] { --pad-color: var(--color-Z); }
+.pad[data-key="X"] { --pad-color: var(--color-X); }
+.pad[data-key="C"] { --pad-color: var(--color-C); }
+.pad[data-key="V"] { --pad-color: var(--color-V); }

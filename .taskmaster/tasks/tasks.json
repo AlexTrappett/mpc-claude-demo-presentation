@@ -1,0 +1,158 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": "1",
+        "title": "Create HTML scaffold with semantic structure",
+        "description": "Build the foundational index.html file with proper document structure, meta tags, Google Fonts link for Orbitron, and semantic containers for title, pad grid, and legend",
+        "details": "Create `index.html` at project root with:\n- HTML5 doctype and semantic structure\n- `<head>` with charset UTF-8, viewport meta for responsive design, title \"VERY VERY COOL DEMO\"\n- Google Fonts link: `<link href=\"https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap\" rel=\"stylesheet\">`\n- Links to `style.css` and `script.js`\n- `<body>` structure:\n  - `<h1 id=\"title\">VERY VERY COOL DEMO</h1>`\n  - `<div id=\"pad-chassis\">` containing `<div id=\"pad-grid\">` with 16 `<button>` elements, each with:\n    - `class=\"pad\"` and unique `data-key` attribute (e.g., `data-key=\"1\"`, `data-key=\"Q\"`, etc.)\n    - Inner text showing the key label (1, 2, 3, 4, Q, W, E, R, A, S, D, F, Z, X, C, V)\n    - Order: row 1 (1-4), row 2 (Q-R), row 3 (A-F), row 4 (Z-V)\n  - `<div id=\"legend\">` containing:\n    - `<p class=\"legend-hint\">Press the keys on your keyboard or click the pads to play sounds.</p>`\n    - `<div id=\"keymap\">` with 16 `<div class=\"keycap\">` elements mirroring the pad layout\n- All buttons should have `type=\"button\"` and accessible names matching their key labels\n- Grid container should use `role=\"group\"` with `aria-label=\"Drum pad grid\"`",
+        "testStrategy": "Open index.html in browser and verify: (1) all 16 pads render in 4x4 layout, (2) title and legend are visible, (3) Orbitron font loads (check dev tools Network tab), (4) document structure is semantic and accessible",
+        "priority": "high",
+        "dependencies": [],
+        "status": "done",
+        "subtasks": [],
+        "updatedAt": "2026-05-12T04:51:41.333Z"
+      },
+      {
+        "id": "2",
+        "title": "Assign per-pad neon colors matching MPC reference",
+        "description": "Define 16 unique CSS custom properties (CSS variables) for pad border colors that precisely match the cyan, magenta, blue, and yellow neon colors distributed across the MPC Live III reference image",
+        "details": "In `style.css`, create CSS custom properties in `:root` for each of the 16 pads, matching the color distribution from `src/images/pads.jpg`:\n\nBased on the reference image analysis:\n- Row 1: cyan (#00f0ff), magenta (#ff00aa), blue (#0080ff), yellow/orange (#ffaa00)\n- Row 2: cyan (#00f0ff), yellow/orange (#ffaa00), magenta (#ff00aa), cyan (#00f0ff)\n- Row 3: magenta (#ff00aa), cyan (#00f0ff), yellow/orange (#ffaa00), blue (#0080ff)\n- Row 4: magenta (#ff00aa), blue (#0080ff), magenta (#ff00aa), yellow/orange (#ffaa00)\n\nDefine variables:\n```css\n:root {\n  --color-1: #00f0ff; /* cyan */\n  --color-2: #ff00aa; /* magenta */\n  --color-3: #0080ff; /* blue */\n  --color-4: #ffaa00; /* yellow/orange */\n  --color-Q: #00f0ff; /* cyan */\n  --color-W: #ffaa00; /* yellow/orange */\n  --color-E: #ff00aa; /* magenta */\n  --color-R: #00f0ff; /* cyan */\n  --color-A: #ff00aa; /* magenta */\n  --color-S: #00f0ff; /* cyan */\n  --color-D: #ffaa00; /* yellow/orange */\n  --color-F: #0080ff; /* blue */\n  --color-Z: #ff00aa; /* magenta */\n  --color-X: #0080ff; /* blue */\n  --color-C: #ff00aa; /* magenta */\n  --color-V: #ffaa00; /* yellow/orange */\n}\n```\n\nApply colors using attribute selectors:\n`.pad[data-key=\"1\"] { --pad-color: var(--color-1); }` (repeat for all 16 keys)",
+        "testStrategy": "Inspect each pad in browser dev tools and verify its --pad-color CSS variable matches the reference image color for that position. Visually compare side-by-side with pads.jpg",
+        "priority": "high",
+        "dependencies": [
+          "1"
+        ],
+        "status": "done",
+        "subtasks": [],
+        "updatedAt": "2026-05-12T04:53:23.537Z"
+      },
+      {
+        "id": "3",
+        "title": "Implement base CSS styling and dark synthwave theme",
+        "description": "Create the complete visual foundation: dark background, centered column layout, responsive sizing with vmin units, and base pad styling with rounded squares and neon borders",
+        "details": "In `style.css`, implement:\n\n**Global resets and base:**\n```css\n* { margin: 0; padding: 0; box-sizing: border-box; }\nbody {\n  font-family: 'Orbitron', sans-serif;\n  background: #0a0a0f;\n  color: #ffffff;\n  min-height: 100vh;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n  padding: 2rem;\n}\n```\n\n**Pad grid layout:**\n```css\n#pad-chassis {\n  background: #000000;\n  border-radius: 1rem;\n  padding: 2rem;\n  box-shadow: 0 0 2rem rgba(0,0,0,0.8);\n}\n\n#pad-grid {\n  display: grid;\n  grid-template-columns: repeat(4, 1fr);\n  gap: 1rem;\n  width: min(85vmin, 600px);\n  aspect-ratio: 1;\n}\n\n.pad {\n  background: #1a1a1f;\n  border: 3px solid var(--pad-color, #333);\n  border-radius: 0.5rem;\n  font-family: 'Orbitron', sans-serif;\n  font-size: clamp(1.5rem, 4vmin, 2.5rem);\n  font-weight: 900;\n  color: #ffffff;\n  cursor: pointer;\n  transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);\n  user-select: none;\n  -webkit-tap-highlight-color: transparent;\n  /* Dim resting glow */\n  box-shadow: \n    0 0 0.5rem var(--pad-color),\n    inset 0 0 2rem rgba(0,0,0,0.7);\n}\n\n.pad:focus {\n  outline: 2px solid var(--pad-color);\n  outline-offset: 2px;\n}\n```\n\n**Responsive scaling:**\n```css\n@media (max-width: 640px) {\n  body { padding: 1rem; }\n  #pad-chassis { padding: 1rem; }\n  #pad-grid { gap: 0.5rem; }\n}\n```",
+        "testStrategy": "Verify: (1) dark background renders, (2) pads display in 4x4 grid with correct spacing, (3) each pad shows its assigned neon border color with dim glow, (4) layout scales proportionally on viewport resize down to 360px, (5) grid maintains square aspect ratio",
+        "priority": "high",
+        "dependencies": [
+          "2"
+        ],
+        "status": "done",
+        "subtasks": [],
+        "updatedAt": "2026-05-12T04:55:03.559Z"
+      },
+      {
+        "id": "4",
+        "title": "Style title with cyan neon glow and Orbitron font",
+        "description": "Apply layered text-shadow effects to create authentic neon-sign glow on the title, with Orbitron bold typography and optional subtle flicker animation",
+        "details": "In `style.css`, add title styling:\n\n```css\n#title {\n  font-family: 'Orbitron', sans-serif;\n  font-weight: 900;\n  font-size: clamp(2rem, 8vmin, 5rem);\n  letter-spacing: 0.15em;\n  text-align: center;\n  margin-bottom: 2rem;\n  color: #ffffff;\n  /* Layered cyan/teal neon glow */\n  text-shadow:\n    0 0 10px #00f0ff,\n    0 0 20px #00f0ff,\n    0 0 40px #00f0ff,\n    0 0 80px #00d0ff,\n    0 0 160px #00b0ff;\n  animation: flicker 4s infinite;\n}\n\n@keyframes flicker {\n  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {\n    text-shadow:\n      0 0 10px #00f0ff,\n      0 0 20px #00f0ff,\n      0 0 40px #00f0ff,\n      0 0 80px #00d0ff,\n      0 0 160px #00b0ff;\n    opacity: 1;\n  }\n  20%, 24%, 55% {\n    text-shadow:\n      0 0 5px #00f0ff,\n      0 0 10px #00f0ff,\n      0 0 20px #00f0ff;\n    opacity: 0.85;\n  }\n}\n```\n\nEnsure title renders above the pad grid in the document flow.",
+        "testStrategy": "Verify: (1) title displays with Orbitron font at large size, (2) cyan neon glow is visible and has appropriate halo intensity, (3) subtle flicker animation plays smoothly without being distracting, (4) text remains legible on dark background, (5) title scales down proportionally on mobile",
+        "priority": "medium",
+        "dependencies": [
+          "3"
+        ],
+        "status": "done",
+        "subtasks": [],
+        "updatedAt": "2026-05-12T04:56:08.121Z"
+      },
+      {
+        "id": "5",
+        "title": "Style legend with keycap graphics and hint text",
+        "description": "Create visual keymap using styled keycap elements arranged in 4x4 grid below the pads, with subtle styling and instructional hint text",
+        "details": "In `style.css`, add legend styling:\n\n```css\n#legend {\n  margin-top: 2rem;\n  text-align: center;\n  max-width: 600px;\n}\n\n.legend-hint {\n  font-size: 0.9rem;\n  color: #8a8a8f;\n  margin-bottom: 1rem;\n  font-weight: 400;\n  letter-spacing: 0.05em;\n}\n\n#keymap {\n  display: grid;\n  grid-template-columns: repeat(4, 1fr);\n  gap: 0.5rem;\n  max-width: 280px;\n  margin: 0 auto;\n}\n\n.keycap {\n  background: linear-gradient(180deg, #2a2a3f 0%, #1a1a2f 100%);\n  border: 1px solid #3a3a4f;\n  border-radius: 0.25rem;\n  padding: 0.5rem;\n  font-size: 0.75rem;\n  font-weight: 700;\n  color: #6a6a8f;\n  text-align: center;\n  box-shadow:\n    0 2px 4px rgba(0,0,0,0.4),\n    inset 0 1px 0 rgba(255,255,255,0.05);\n  user-select: none;\n}\n```\n\nIn `index.html`, ensure keycaps are populated with key labels matching pad order.",
+        "testStrategy": "Verify: (1) legend appears below pad grid, (2) hint text is legible and subtle, (3) 16 keycaps render in 4x4 layout matching pad key arrangement, (4) keycaps have subtle 3D appearance suggesting physical keys, (5) legend doesn't compete visually with pads",
+        "priority": "medium",
+        "dependencies": [
+          "3"
+        ],
+        "status": "done",
+        "subtasks": [],
+        "updatedAt": "2026-05-12T04:57:11.505Z"
+      },
+      {
+        "id": "6",
+        "title": "Implement pressed-state CSS animation with glow and scale",
+        "description": "Create .pad-pressed CSS class that triggers instant full-brightness neon flash with halo glow and slight scale-down, with 250ms fade-out transition on release",
+        "details": "In `style.css`, add pressed-state styling:\n\n```css\n.pad.pad-pressed {\n  /* Full brightness fill with pad color */\n  background: var(--pad-color);\n  color: #000000; /* black text for contrast against bright bg */\n  border-color: var(--pad-color);\n  \n  /* Intense halo glow */\n  box-shadow:\n    0 0 1rem var(--pad-color),\n    0 0 2rem var(--pad-color),\n    0 0 4rem var(--pad-color),\n    inset 0 0 1rem rgba(255,255,255,0.3);\n  \n  /* Slight scale-down for pressed feel */\n  transform: scale(0.98);\n  \n  /* Instant transition on press, but 250ms fade on release is handled by base .pad transition */\n}\n\n/* Active state for mouse/touch feedback */\n.pad:active:not(.pad-pressed) {\n  transform: scale(0.99);\n}\n```\n\nThe base `.pad` already has `transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);` which handles the fade-out when `.pad-pressed` is removed.\n\nImplementation note: JavaScript will add `.pad-pressed` class on press events and remove it on release events.",
+        "testStrategy": "Temporarily add .pad-pressed class to a pad in dev tools and verify: (1) pad instantly fills with its neon color, (2) halo glow appears around pad border, (3) pad scales down to 98%, (4) text color inverts to black for readability, (5) removing class triggers smooth 250ms fade back to resting state",
+        "priority": "high",
+        "dependencies": [
+          "3"
+        ],
+        "status": "done",
+        "subtasks": [],
+        "updatedAt": "2026-05-12T04:58:05.327Z"
+      },
+      {
+        "id": "7",
+        "title": "Preload all 16 audio files on page initialization",
+        "description": "Create audio loading system in script.js that eagerly preloads all .wav files from src/sounds/ into memory, mapped by key name, ready for instant playback",
+        "details": "In `script.js`, implement audio preloading:\n\n```javascript\n// Audio preloading system\nconst audioCache = {};\nconst keys = ['1', '2', '3', '4', 'Q', 'W', 'E', 'R', 'A', 'S', 'D', 'F', 'Z', 'X', 'C', 'V'];\n\n// Preload all sounds on page load\nfunction preloadAudio() {\n  keys.forEach(key => {\n    const audio = new Audio(`src/sounds/${key}.wav`);\n    audio.preload = 'auto';\n    audioCache[key] = audio;\n  });\n}\n\n// Play sound with overlap support\nfunction playSound(key) {\n  // Clone the cached audio element to allow overlapping plays\n  const sound = audioCache[key].cloneNode(true);\n  sound.play().catch(err => {\n    console.warn(`Audio playback failed for ${key}:`, err);\n  });\n}\n\n// Initialize on DOM ready\nif (document.readyState === 'loading') {\n  document.addEventListener('DOMContentLoaded', preloadAudio);\n} else {\n  preloadAudio();\n}\n```\n\nThis approach:\n- Preloads all 16 files into `audioCache` on page load\n- Clones the cached Audio object for each play, enabling overlap\n- Handles autoplay policy gracefully (first user gesture satisfies requirement)\n- Logs warnings if playback fails but doesn't break the app",
+        "testStrategy": "Open browser dev tools Network tab and verify: (1) all 16 .wav files load on page initialization before any interaction, (2) files are fetched once and cached, (3) no console errors appear, (4) page remains responsive during load. Test with slow 3G throttling to confirm preload behavior.",
+        "priority": "high",
+        "dependencies": [
+          "1"
+        ],
+        "status": "done",
+        "subtasks": [],
+        "updatedAt": "2026-05-12T05:00:00.810Z"
+      },
+      {
+        "id": "8",
+        "title": "Implement keyboard event handlers with repeat filtering",
+        "description": "Wire up keydown and keyup listeners that map keyboard input to pads, ignore OS key-repeat events, trigger sound playback and visual press state, and handle release state",
+        "details": "In `script.js`, add keyboard handling:\n\n```javascript\n// Pad element lookup cache\nconst padElements = {};\nkeys.forEach(key => {\n  padElements[key] = document.querySelector(`[data-key=\"${key}\"]`);\n});\n\n// Track which keys are currently pressed\nconst pressedKeys = new Set();\n\n// Keyboard event handlers\nfunction handleKeyDown(event) {\n  const key = event.key.toUpperCase();\n  \n  // Ignore if not a mapped key\n  if (!keys.includes(key)) return;\n  \n  // Ignore OS key-repeat events\n  if (event.repeat) return;\n  \n  // Prevent default to avoid scrolling, etc.\n  event.preventDefault();\n  \n  // Mark key as pressed\n  pressedKeys.add(key);\n  \n  // Trigger visual press\n  const pad = padElements[key];\n  if (pad) {\n    pad.classList.add('pad-pressed');\n  }\n  \n  // Play sound with overlap\n  playSound(key);\n}\n\nfunction handleKeyUp(event) {\n  const key = event.key.toUpperCase();\n  \n  // Ignore if not a mapped key\n  if (!keys.includes(key)) return;\n  \n  event.preventDefault();\n  \n  // Mark key as released\n  pressedKeys.delete(key);\n  \n  // Release visual press (triggers 250ms fade via CSS transition)\n  const pad = padElements[key];\n  if (pad) {\n    pad.classList.remove('pad-pressed');\n  }\n}\n\n// Release all pads on window blur (prevents stuck-lit pads after Cmd-Tab)\nfunction handleBlur() {\n  pressedKeys.forEach(key => {\n    const pad = padElements[key];\n    if (pad) {\n      pad.classList.remove('pad-pressed');\n    }\n  });\n  pressedKeys.clear();\n}\n\n// Attach listeners\ndocument.addEventListener('keydown', handleKeyDown);\ndocument.addEventListener('keyup', handleKeyUp);\nwindow.addEventListener('blur', handleBlur);\n```",
+        "testStrategy": "Test keyboard interaction: (1) press and release each of the 16 keys - verify sound plays and pad flashes, (2) hold a key - verify pad stays lit and sound plays only once, (3) rapidly tap a key 10 times - verify overlapping sounds and responsive visual feedback, (4) press multiple keys simultaneously - verify each pad responds independently, (5) Cmd-Tab away and back - verify no pads remain stuck in pressed state, (6) press an unmapped key like Space - verify no errors or side effects",
+        "priority": "high",
+        "dependencies": [
+          "6",
+          "7"
+        ],
+        "status": "done",
+        "subtasks": [],
+        "updatedAt": "2026-05-12T05:02:18.145Z"
+      },
+      {
+        "id": "9",
+        "title": "Implement mouse and touch event handlers for pad clicks",
+        "description": "Add pointer event listeners (mousedown, mouseup, mouseleave, touchstart, touchend) to each pad button that mirror keyboard press/release behavior",
+        "details": "In `script.js`, add pointer event handling:\n\n```javascript\n// Mouse/touch event handlers for each pad\nfunction initializePadPointerEvents() {\n  keys.forEach(key => {\n    const pad = padElements[key];\n    if (!pad) return;\n    \n    // Mouse events\n    pad.addEventListener('mousedown', (event) => {\n      event.preventDefault(); // Prevent focus/drag artifacts\n      \n      pad.classList.add('pad-pressed');\n      playSound(key);\n    });\n    \n    pad.addEventListener('mouseup', () => {\n      pad.classList.remove('pad-pressed');\n    });\n    \n    pad.addEventListener('mouseleave', () => {\n      // Release if mouse drags off the pad while held\n      pad.classList.remove('pad-pressed');\n    });\n    \n    // Touch events\n    pad.addEventListener('touchstart', (event) => {\n      event.preventDefault(); // Prevent ghost clicks and scrolling\n      \n      pad.classList.add('pad-pressed');\n      playSound(key);\n    });\n    \n    pad.addEventListener('touchend', (event) => {\n      event.preventDefault();\n      pad.classList.remove('pad-pressed');\n    });\n    \n    pad.addEventListener('touchcancel', () => {\n      // Handle touch interruption (e.g., system gesture)\n      pad.classList.remove('pad-pressed');\n    });\n  });\n}\n\n// Initialize after preload\nfunction init() {\n  preloadAudio();\n  initializePadPointerEvents();\n}\n\nif (document.readyState === 'loading') {\n  document.addEventListener('DOMContentLoaded', init);\n} else {\n  init();\n}\n```",
+        "testStrategy": "Test pointer interaction: (1) click each pad with mouse - verify sound plays and visual flash occurs, (2) click and hold a pad, then drag mouse off - verify pad releases when cursor leaves, (3) tap each pad on touch device - verify touch works identically to click, (4) rapidly tap a single pad 10 times - verify overlapping sounds and responsive animation, (5) multi-touch: press multiple pads simultaneously on touch device - verify each responds independently, (6) verify no double-triggering on touch devices (no ghost clicks)",
+        "priority": "high",
+        "dependencies": [
+          "6",
+          "7"
+        ],
+        "status": "done",
+        "subtasks": [],
+        "updatedAt": "2026-05-12T05:03:31.541Z"
+      },
+      {
+        "id": "10",
+        "title": "Cross-browser testing and performance validation",
+        "description": "Test the complete application across target browsers (Chrome, Safari, Firefox, Edge) on desktop and mobile, validate performance metrics (audio latency <50ms, no animation jank), and verify all requirements are met",
+        "details": "Comprehensive testing checklist:\n\n**Functional testing:**\n- Test all 16 pads via keyboard on Chrome, Safari, Firefox, Edge (desktop)\n- Test all 16 pads via click on all desktop browsers\n- Test all 16 pads via touch on Safari iOS and Chrome Android\n- Verify drum-roll test: mash single key ~10 times/sec, confirm overlapping sounds with no dropouts\n- Verify multi-press: hold 3+ keys simultaneously, confirm independent pad behavior\n- Verify autoplay policy: first keypress/click enables audio without explicit prompt\n- Verify window blur: Cmd-Tab away mid-press, confirm pads release\n\n**Visual testing:**\n- Compare rendered pad colors against `src/images/pads.jpg` reference - confirm mosaic matches\n- Verify title cyan neon glow renders correctly with visible halo\n- Verify smooth 250ms fade transition when releasing pads\n- Test responsive scaling: resize viewport from 1920px down to 360px, confirm proportional scaling\n- Confirm dark synthwave aesthetic matches design intent\n\n**Performance testing:**\n- Measure perceived audio latency (first press to audible sound) - should be <50ms\n- Test sustained 10-press/sec drum roll - monitor Chrome DevTools Performance tab for dropped frames\n- Verify no memory leaks during 60-second continuous mashing session\n- Confirm page load time <2sec on broadband (local file:// or localhost)\n\n**Accessibility testing:**\n- Tab through pads with keyboard - verify focus indicators are visible\n- Test with VoiceOver/NVDA - verify pads announce their key labels\n\n**Edge cases:**\n- Test with Google Fonts blocked - verify fallback to system sans-serif\n- Test offline - verify app works (if fonts cached) or degrades gracefully\n- Test on weak hardware (older phone) - confirm acceptable performance",
+        "testStrategy": "Create testing matrix spreadsheet with browsers/devices as columns and test cases as rows. Mark each cell pass/fail. Success criteria: all P0 requirements pass on all target browsers, P1 requirements pass on modern Chrome/Safari. Document any issues found, file as bugs if critical or defer if polish. Final gate: owner subjectively rates page as \"looks cool and feels right\" during hands-on demo run-through.",
+        "priority": "high",
+        "dependencies": [
+          "4",
+          "5",
+          "8",
+          "9"
+        ],
+        "status": "done",
+        "subtasks": [],
+        "updatedAt": "2026-05-12T05:04:21.943Z"
+      }
+    ],
+    "metadata": {
+      "version": "1.0.0",
+      "lastModified": "2026-05-12T05:04:21.943Z",
+      "taskCount": 10,
+      "completedCount": 10,
+      "tags": [
+        "master"
+      ]
+    }
+  }
+}
