@@ -23,12 +23,28 @@ This repo is also the **demo artifact for a Claude talk** showing an end-to-end 
 
 ## Running it
 
+Install dev dependencies (only needed for the test suite):
+
 ```bash
 npm install
-npm test          # run the vitest test suite
 ```
 
-Then open [index.html](index.html) directly in a modern browser (Chrome, Safari, Firefox, or Edge) and start mashing pads.
+Run the tests:
+
+```bash
+npm test          # one-shot
+npm run test:watch # re-run on file changes
+```
+
+Start a local server so the page can load the `.wav` files reliably (some browsers block audio over `file://`). From the repo root, pick one:
+
+```bash
+npx serve .              # Node — opens on http://localhost:3000
+# or
+python3 -m http.server   # Python — opens on http://localhost:8000
+```
+
+Then open the printed URL in a modern browser (Chrome, Safari, Firefox, or Edge) and start mashing pads.
 
 ## Project layout
 
