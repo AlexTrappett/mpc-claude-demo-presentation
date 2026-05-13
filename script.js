@@ -1,24 +1,66 @@
 export const PAD_KEYS = ['1','2','3','4','Q','W','E','R','A','S','D','F','Z','X','C','V'];
 const PAD_KEY_SET = new Set(PAD_KEYS);
 
-export const audioCache = {};
+export const audioBuffers = {};
+let audioContext = null;
 
-export function preloadAudio() {
-  for (const key of PAD_KEYS) {
-    const audio = new Audio(`src/sounds/${key}.wav`);
-    audio.preload = 'auto';
-    audioCache[key] = audio;
-  }
+function getAudioContext() {
+  if (audioContext) return audioContext;
+  const Ctx = globalThis.AudioContext || globalThis.webkitAudioContext;
+  if (!Ctx) return null;
+  audioContext = new Ctx();
+  return audioContext;
 }
 
+export function _resetAudioForTests() {
+  audioContext = null;
+  for (const k of Object.keys(audioBuffers)) delete audioBuffers[k];
+}
+
+export async function preloadAudio() {
+  const ctx = getAudioContext();
+  if (!ctx) return;
+  await Promise.all(PAD_KEYS.map(async (key) => {
+    try {
+      const response = await fetch(`src/sounds/${key}.wav`);
+      const arrayBuffer = await response.arrayBuffer();
+      const buffer = await ctx.decodeAudioData(arrayBuffer);
+      audioBuffers[key] = buffer;
+    } catch (err) {
+      console.warn('Audio preload failed for', key, err);
+    }
+  }));
+}
+
+const FADE_IN_SECONDS = 0.005;
+const FADE_OUT_SECONDS = 0.015;
+
 export function playSound(key) {
-  const cached = audioCache[key];
-  if (!cached) return;
-  const instance = cached.cloneNode(true);
-  const result = instance.play && instance.play();
-  if (result && typeof result.catch === 'function') {
-    result.catch((err) => console.warn('Audio playback failed for', key, err));
+  const buffer = audioBuffers[key];
+  if (!buffer) return;
+  const ctx = getAudioContext();
+  if (!ctx) return;
+  if (ctx.state === 'suspended' && typeof ctx.resume === 'function') {
+    ctx.resume();
   }
+
+  const now = ctx.currentTime;
+  const duration = buffer.duration || 0;
+  const fadeIn = Math.min(FADE_IN_SECONDS, duration / 4);
+  const fadeOut = Math.min(FADE_OUT_SECONDS, duration / 4);
+
+  const source = ctx.createBufferSource();
+  source.buffer = buffer;
+
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(0, now);
+  gain.gain.linearRampToValueAtTime(1, now + fadeIn);
+  gain.gain.setValueAtTime(1, now + duration - fadeOut);
+  gain.gain.linearRampToValueAtTime(0, now + duration);
+
+  source.connect(gain);
+  gain.connect(ctx.destination);
+  source.start(0);
 }
 
 function getPad(key) {
@@ -115,7 +157,7 @@ export function initInput() {
 
 if (typeof document !== 'undefined' && !globalThis.__SKIP_AUTO_INIT__) {
   const boot = () => {
-    preloadAudio();
+    preloadAudio().catch((err) => console.warn('Audio preload failed', err));
     initInput();
   };
   if (document.readyState === 'loading') {

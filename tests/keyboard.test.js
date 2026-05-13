@@ -13,16 +13,33 @@ function mountPage() {
 
 describe('keyboard handling', () => {
   let teardown;
+  let createBufferSource;
 
   beforeEach(() => {
     mountPage();
-    for (const k of Object.keys(mod.audioCache)) delete mod.audioCache[k];
-    mod.preloadAudio();
+    mod._resetAudioForTests();
+
+    createBufferSource = vi.fn(() => ({ buffer: null, connect: vi.fn(), start: vi.fn() }));
+    vi.stubGlobal('AudioContext', vi.fn(() => ({
+      decodeAudioData: vi.fn(),
+      createBufferSource,
+      createGain: vi.fn(() => ({
+        gain: { setValueAtTime: vi.fn(), linearRampToValueAtTime: vi.fn() },
+        connect: vi.fn(),
+      })),
+      destination: {},
+      state: 'running',
+      currentTime: 0,
+      resume: vi.fn().mockResolvedValue(undefined),
+    })));
+
+    for (const k of mod.PAD_KEYS) mod.audioBuffers[k] = { __seed: k, duration: 1 };
     teardown = mod.initInput();
   });
 
   afterEach(() => {
     if (typeof teardown === 'function') teardown();
+    vi.unstubAllGlobals();
   });
 
   test('keydown on a mapped key adds pad-pressed to the matching pad', () => {
@@ -64,10 +81,9 @@ describe('keyboard handling', () => {
   });
 
   test('mapped keydown triggers a sound play', () => {
-    const cached = mod.audioCache['W'];
-    const playSpy = vi.fn().mockResolvedValue(undefined);
-    vi.spyOn(cached, 'cloneNode').mockImplementation(() => ({ play: playSpy }));
+    const source = { buffer: null, connect: vi.fn(), start: vi.fn() };
+    createBufferSource.mockReturnValueOnce(source);
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'w' }));
-    expect(playSpy).toHaveBeenCalled();
+    expect(source.start).toHaveBeenCalled();
   });
 });

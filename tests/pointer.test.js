@@ -13,25 +13,42 @@ function mountPage() {
 
 describe('mouse and touch handling', () => {
   let teardown;
+  let createBufferSource;
 
   beforeEach(() => {
     mountPage();
-    for (const k of Object.keys(mod.audioCache)) delete mod.audioCache[k];
-    mod.preloadAudio();
+    mod._resetAudioForTests();
+
+    createBufferSource = vi.fn(() => ({ buffer: null, connect: vi.fn(), start: vi.fn() }));
+    vi.stubGlobal('AudioContext', vi.fn(() => ({
+      decodeAudioData: vi.fn(),
+      createBufferSource,
+      createGain: vi.fn(() => ({
+        gain: { setValueAtTime: vi.fn(), linearRampToValueAtTime: vi.fn() },
+        connect: vi.fn(),
+      })),
+      destination: {},
+      state: 'running',
+      currentTime: 0,
+      resume: vi.fn().mockResolvedValue(undefined),
+    })));
+
+    for (const k of mod.PAD_KEYS) mod.audioBuffers[k] = { __seed: k, duration: 1 };
     teardown = mod.initInput();
   });
 
   afterEach(() => {
     if (typeof teardown === 'function') teardown();
+    vi.unstubAllGlobals();
   });
 
   test('mousedown on a pad adds pad-pressed and plays its sound', () => {
     const pad = document.querySelector('[data-key="3"]');
-    const playSpy = vi.fn().mockResolvedValue(undefined);
-    vi.spyOn(mod.audioCache['3'], 'cloneNode').mockImplementation(() => ({ play: playSpy }));
+    const source = { buffer: null, connect: vi.fn(), start: vi.fn() };
+    createBufferSource.mockReturnValueOnce(source);
     pad.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
     expect(pad.classList.contains('pad-pressed')).toBe(true);
-    expect(playSpy).toHaveBeenCalled();
+    expect(source.start).toHaveBeenCalled();
   });
 
   test('mouseup removes pad-pressed', () => {
@@ -51,11 +68,11 @@ describe('mouse and touch handling', () => {
 
   test('touchstart adds pad-pressed and plays sound', () => {
     const pad = document.querySelector('[data-key="E"]');
-    const playSpy = vi.fn().mockResolvedValue(undefined);
-    vi.spyOn(mod.audioCache['E'], 'cloneNode').mockImplementation(() => ({ play: playSpy }));
+    const source = { buffer: null, connect: vi.fn(), start: vi.fn() };
+    createBufferSource.mockReturnValueOnce(source);
     pad.dispatchEvent(new Event('touchstart', { bubbles: true, cancelable: true }));
     expect(pad.classList.contains('pad-pressed')).toBe(true);
-    expect(playSpy).toHaveBeenCalled();
+    expect(source.start).toHaveBeenCalled();
   });
 
   test('touchend removes pad-pressed', () => {
